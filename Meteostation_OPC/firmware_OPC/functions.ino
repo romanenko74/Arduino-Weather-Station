@@ -6,7 +6,7 @@ void readSensors(){
   hum = bme.readHumidity();
   if(mode == 0) displayShortSensors();
   if(mode == 1) displaySensors();
-  printSensorsSerial();
+  //printSensorsSerial();
 }
 
 void checkAirQuality(){
@@ -25,7 +25,7 @@ if(ccs.available()){
     }
   }
   if(mode == 2) displayAir();
-  printAirSerial();
+  //printAirSerial();
 }
 
 //temp, hum, pressure
@@ -57,7 +57,7 @@ void displayAir(){
 }
 
 //**************DEBUG********************//
-void printAirSerial(){
+/*void printAirSerial(){
   Serial.println("******Air Quality******");
   Serial.print("TVOC: ");
   Serial.println(tvoc);
@@ -65,7 +65,7 @@ void printAirSerial(){
   Serial.println(co2);
   Serial.println("********************");
   Serial.println();
-}
+}*/
 //**************************************//
 
 void displaySensors(){
@@ -83,7 +83,7 @@ void displaySensors(){
 }
 
 //**************DEBUG********************//
-void printSensorsSerial(){
+/*void printSensorsSerial(){
   Serial.println("********************");
   Serial.print("Temperature: ");
   Serial.println(String(temp, 2));
@@ -93,7 +93,7 @@ void printSensorsSerial(){
   Serial.println(String(hum) + "%");
   Serial.println("*********************");
   Serial.println();
-}
+}*/
 //**************************************//
 
 
@@ -128,6 +128,20 @@ void modeChange(){
       case 2: displayAir();
         break;
     }
+  }
+}
+
+void lcdChangeBacklightMode(){
+  bool btn_long_holded = isLongHolded();
+  if(btn_long_holded && lcd_mode == true){
+    lcd_mode = false;
+    lcd.noBacklight();
+    Serial.println("Backlight 0");
+  } else
+  if(btn_long_holded && lcd_mode == false){
+    lcd_mode = true;
+    lcd.backlight();
+    Serial.println("Backlight 1");
   }
 }
 

@@ -26,8 +26,8 @@
 #define TIME_ADJUSTMENT 14 // adjust seconds
 
 //sensors polling period
-#define SENSORS_PERIOD 5000 // poll every 5 seconds
-#define AIR_PERIOD 5000
+#define SENSORS_PERIOD 1000 // poll every seconds
+#define AIR_PERIOD 1000
 
 //pins
 #define BTN_PIN 2
@@ -85,11 +85,15 @@ byte mode = 0;
 bool btn_state = false; 
 bool btn_click = false;
 bool btn_hold = false;
+bool btn_long_hold = false;
 bool btn_isPressed = false;
 bool btn_OneClick = false;
 bool btn_isHolded = false;
+bool btn_isLongHolded = false;
+bool lcd_mode = true;
 uint32_t timer; 
 uint16_t timeout = 500;
+uint16_t lcd_backlight_timeout = 1500;
 
 uint32_t sensorsTimer;
 uint32_t clockTimer;
@@ -222,7 +226,7 @@ void setLEDColor(byte color){
 
 void setup() {
   Serial.begin(9600);
-  pinMode(2, INPUT_PULLUP);
+  pinMode(BTN_PIN, INPUT_PULLUP);
   pinMode(LED_R, OUTPUT);
   pinMode(LED_G, OUTPUT);
   pinMode(LED_B, OUTPUT);
@@ -299,7 +303,7 @@ void setup() {
 
 
 void buttonTick(){
-  bool btn_flag = !digitalRead(2);
+  bool btn_flag = !digitalRead(BTN_PIN);
   if(btn_flag == true && btn_state == false && (millis() - timer) > 100){ 
     btn_state = true;
     btn_click = true;
@@ -320,6 +324,11 @@ void buttonTick(){
     btn_click = false;
     timer = millis();
   }
+  if(btn_flag == true && btn_state == true && (millis() - timer) > lcd_backlight_timeout){
+    btn_isLongHolded = true;
+    btn_click = false;
+    timer = millis();
+  }
 }
 
 bool isOneClick(){
@@ -336,6 +345,12 @@ bool isBtnHolded(){
   } else return false;
 }
 
+bool isLongHolded(){
+  if(btn_isLongHolded){
+    btn_isLongHolded = false;
+    return true;
+  } else return false;
+}
 
 void loop() {  
 
@@ -357,7 +372,8 @@ void loop() {
   
   buttonTick();
   modeChange();
-  
+  lcdChangeBacklightMode();
+
   aOPCSerial.processOPCCommands();
 
 }
